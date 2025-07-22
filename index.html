@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rueda de Valores de Schwartz</title>
+    <style>
+        :root {
+            --color-primary: #FFD700; /* Oro */
+            --color-secondary: #FFA500; /* Naranja */
+            --color-accent: #FF6347; /* Tomate */
+            --color-text: #FFFFFF; /* Blanco */
+            --color-bg: #000000; /* Negro */
+            --color-card: #1A1A1A; /* Gris oscuro */
+            --color-border: #FFD700; /* Oro */
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+       .container {
+  width: 100%;
+  max-width: 1400px; /* Permite buen uso en pantallas grandes */
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  justify-content: center;
+  padding: 0 5%; /* Añade espacio lateral en pantallas pequeñas */
+  box-sizing: border-box;
+}
+
+        
+        .main-content {
+            flex: 1;
+            min-width: 300px;
+            max-width: 600px;
+        }
+        
+        .legend-container {
+            flex: 0 0 300px;
+            background-color: var(--color-card);
+            border-radius: 10px;
+            border: 2px solid var(--color-border);
+            padding: 20px;
+            height: fit-content;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+        
+        .legend-title {
+            color: var(--color-primary);
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 1px solid var(--color-border);
+            padding-bottom: 10px;
+        }
+        
+        .legend-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .legend-item:last-child {
+            border-bottom: none;
+        }
+        
+        .legend-value {
+            color: var(--color-primary);
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .legend-color {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            margin-right: 10px;
+            border-radius: 3px;
+        }
+        
+        .legend-definition {
+            color: #AAA;
+            font-size: 0.9rem;
+            padding-left: 25px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: var(--color-card);
+            border-radius: 10px;
+            border: 2px solid var(--color-border);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+            width: 100%;
+        }
+        
+        h1 {
+            color: var(--color-primary);
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+        }
+        
+        .subtitle {
+            color: var(--color-secondary);
+            font-size: 1.2rem;
+        }
+        
+        .wheel-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        #wheel {
+            width: 100%;
+            max-width: 500px;
+            height: 500px;
+            position: relative;
+            margin: 20px auto;
+        }
+        
+        #wheel canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 3px solid var(--color-border);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+            transition: transform 4s cubic-bezier(0.17, 0.67, 0.21, 0.99);
+        }
+        
+        .pointer {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+          border-top: 60px solid gold; /* flecha hacia abajo y color dorado */
+  z-index: 10;
+        
+            z-index: 10;
+            filter: drop-shadow(0 0 5px rgba(255, 99, 71, 0.7));
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: var(--color-primary);
+            color: #000;
+            border: 2px solid var(--color-border);
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+            background-color: #FFC000;
+        }
+        
+        button:disabled {
+            background-color: #333;
+            color: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            border-color: #333;
+        }
+        
+        #spinBtn {
+            background-color: var(--color-primary);
+            color: #000;
+        }
+        
+        #resetBtn {
+            background-color: var(--color-secondary);
+            color: #000;
+        }
+        
+        .result-section {
+            background-color: var(--color-card);
+            border-radius: 10px;
+            padding: 30px;
+            border: 2px solid var(--color-border);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+            margin-bottom: 30px;
+            display: none;
+        }
+        
+        .value-display {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--color-border);
+        }
+        
+        .value-display h2 {
+            color: var(--color-primary);
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+        }
+        
+        .definition {
+            font-style: italic;
+            color: #AAAAAA;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .dilemma {
+            background-color: #222;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--color-accent);
+            margin-bottom: 20px;
+        }
+        
+        .reflection-form {
+            margin-top: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: var(--color-primary);
+            font-size: 1.1rem;
+        }
+        
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #444;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 16px;
+            background-color: #222;
+            color: white;
+            transition: border 0.3s;
+        }
+        
+        input[type="text"]:focus, textarea:focus {
+            border-color: var(--color-primary);
+            outline: none;
+            box-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .art-section {
+            margin-top: 40px;
+            border-top: 1px solid var(--color-border);
+            padding-top: 25px;
+        }
+        
+        .art-preview {
+            max-width: 100%;
+            max-height: 300px;
+            margin-top: 15px;
+            display: none;
+            border-radius: 8px;
+            border: 2px solid var(--color-border);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+        
+        .print-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-top: 30px;
+            background-color: var(--color-primary);
+            color: #000;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .print-btn:hover {
+            background-color: #FFC000;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+        }
+        
+        @media print {
+            body {
+                background-color: white !important;
+                color: black !important;
+                padding: 0;
+                font-size: 12pt;
+            }
+            
+            .container, .legend-container {
+                max-width: 100%;
+                padding: 0;
+            }
+            
+            header, .wheel-container, button:not(.print-btn), .legend-container {
+                display: none !important;
+            }
+            
+            .result-section {
+                display: block !important;
+                border: none;
+                box-shadow: none;
+                padding: 20px;
+                margin: 0;
+                page-break-after: always;
+            }
+            
+            .value-display h2 {
+                color: black !important;
+            }
+            
+            .dilemma {
+                background-color: transparent !important;
+                border-left: 4px solid black !important;
+            }
+            
+            input[type="text"], textarea {
+                background-color: transparent !important;
+                border: 1px solid black !important;
+                color: black !important;
+                padding: 5px;
+            }
+            
+            textarea {
+                min-height: auto;
+                height: auto;
+            }
+            
+            .art-preview {
+                max-width: 300px !important;
+                max-height: 300px !important;
+                display: block !important;
+                border: 1px solid black !important;
+            }
+            
+            .print-btn {
+                display: none !important;
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .legend-container {
+                order: 3;
+                width: 100%;
+                max-width: none;
+            }
+            
+            #wheel {
+                height: 300px;
+                max-width: 300px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Rueda de Valores de Schwartz</h1>
+            <p class="subtitle">Herramienta educativa para reflexión ética y expresión artística</p>
+        </header>
+      <div style="font-family: 'Times New Roman', Times, serif; font-size: 15px; line-height: 1.1;">
+  <p>
+    La Rueda de Valores de Schwartz es una representación visual de los valores humanos universales, clasificados en diez grupos principales interrelacionados que reflejan las motivaciones fundamentales del ser humano. 
+    Este modelo teórico, desarrollado por el psicólogo social Shalom Schwartz, nos permite comprender cómo las personas priorizan distintos valores como la autodirección, el logro, el hedonismo, la estimulación, la conformidad, la seguridad, el poder, la benevolencia, la tradición y el universalismo.
+  </p>
+
+  <p>
+    En esta propuesta visual, hemos rediseñado la rueda con un enfoque artístico y educativo, resaltando la importancia del equilibrio, la armonía y la conexión entre los valores en diferentes contextos: personales, sociales y educativos.
+    Esta herramienta ha sido creada para facilitar procesos de reflexión, toma de decisiones éticas y formación en ciudadanía, tanto en contextos escolares como profesionales.
+  </p>
+
+  <p>
+    Invitamos a explorar esta rueda como un recurso transversal para promover el desarrollo personal, la empatía, la resolución de conflictos y la construcción de comunidades más justas y respetuosas.
+  </p>
+</div>
+     
+<h2 style="color: #FFD700; font-family: 'Times New Roman', Times, serif; font-size: 20px;">
+  Gira la Ruleta de los Valores de Schwartz (Nivel 2)
+</h2>
+
+
+
+        
+        <div class="main-content">
+            <div class="wheel-container">
+                <div id="wheel">
+                    <div class="pointer"></div>
+                    <canvas id="wheelCanvas" width="500" height="500"></canvas>
+                </div>
+                
+                <div class="controls">
+                    <button id="spinBtn">Girar la Rueda</button>
+                    <button id="resetBtn">Reiniciar</button>
+                </div>
+            </div>
+            
+            <div class="result-section" id="resultSection">
+                <div class="value-display">
+                    <h2 id="valueTitle">Valor: <span id="valueName"></span></h2>
+                    <p class="definition" id="valueDefinition"></p>
+                    <div class="dilemma">
+                        <strong>Dilema:</strong> <span id="valueDilemma"></span>
+                    </div>
+                </div>
+                
+                <div class="reflection-form">
+                    <div class="form-group">
+                        <label for="studentName">Nombre del estudiante:</label>
+                        <input type="text" id="studentName" placeholder="Escribe tu nombre">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label id="question1Label"></label>
+                        <textarea id="answer1" placeholder="Escribe tu reflexión aquí..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label id="question2Label"></label>
+                        <textarea id="answer2" placeholder="Escribe tu reflexión aquí..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label id="question3Label"></label>
+                        <textarea id="answer3" placeholder="Escribe tu reflexión aquí..."></textarea>
+                    </div>
+                    
+                    <div class="art-section">
+                        <h3>Expresión Artística</h3>
+                        <p>Representa este valor a través de un dibujo, poema, historia breve o cualquier otra forma de expresión artística:</p>
+                        <textarea id="artExpression" placeholder="Describe tu creación artística o escribe tu poema/historia aquí..."></textarea>
+                        
+                        <div class="form-group">
+                            <label for="artUpload">Sube una imagen de tu creación (opcional):</label>
+                            <input type="file" id="artUpload" accept="image/*">
+                            <img id="artPreview" class="art-preview">
+                        </div>
+                    </div>
+                    
+                    <button class="print-btn" onclick="printReflection()">Imprimir Reflexión</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="legend-container">
+            <h2 class="legend-title">Los 10 Valores de Schwartz</h2>
+            <div id="legendItems"></div>
+        </div>
+    </div>
+
+    <script>
+        // Valores de Schwartz mejorados
+        const schwartzValues = {
+            "Autodirección": {
+                "Creatividad": {
+                    definition: "Originalidad, imaginación e ingenio para crear nuevas ideas o cosas",
+                    dilemma: "Tienes una idea innovadora para un proyecto escolar, pero temes que tus compañeros no la entiendan.",
+                    color: "hsl(0, 80%, 60%)" /* Rojo */
+                },
+                "Libertad": {
+                    definition: "Capacidad para decidir y actuar según la propia voluntad",
+                    dilemma: "Tus padres quieren que estudies una carrera que no te interesa.",
+                    color: "hsl(0, 80%, 60%)" /* Rojo */
+                }
+            },
+            "Estimulación": {
+                "Emoción": {
+                    definition: "Búsqueda de novedad, cambio y desafío en la vida",
+                    dilemma: "Tienes la oportunidad de participar en una competencia arriesgada pero emocionante.",
+                    color: "hsl(36, 80%, 60%)" /* Naranja */
+                },
+                "Aventura": {
+                    definition: "Deseo de experimentar cosas nuevas y diferentes",
+                    dilemma: "Te ofrecen un intercambio estudiantil en otro país con una cultura muy diferente.",
+                    color: "hsl(36, 80%, 60%)" /* Naranja */
+                }
+            },
+            "Hedonismo": {
+                "Placer": {
+                    definition: "Gratificación y disfrute sensorial",
+                    dilemma: "Debes elegir entre estudiar para un examen importante o ir a una fiesta con amigos.",
+                    color: "hsl(72, 80%, 60%)" /* Amarillo */
+                },
+                "Disfrute": {
+                    definition: "Apreciación de los aspectos placenteros de la vida",
+                    dilemma: "Prefieres actividades divertidas sobre responsabilidades importantes.",
+                    color: "hsl(72, 80%, 60%)" /* Amarillo */
+                }
+            },
+            "Logro": {
+                "Éxito": {
+                    definition: "Demostración de competencia según estándares sociales",
+                    dilemma: "Tienes la oportunidad de hacer trampa para obtener mejores calificaciones.",
+                    color: "hsl(108, 80%, 60%)" /* Verde claro */
+                },
+                "Ambición": {
+                    definition: "Aspiración a metas personales desafiantes",
+                    dilemma: "Debes elegir entre un trabajo bien pagado o seguir tu verdadera pasión.",
+                    color: "hsl(108, 80%, 60%)" /* Verde claro */
+                }
+            },
+            "Poder": {
+                "Liderazgo": {
+                    definition: "Control o influencia sobre personas y recursos",
+                    dilemma: "Eres elegido líder de grupo pero algunos miembros cuestionan tus decisiones.",
+                    color: "hsl(144, 80%, 60%)" /* Verde */
+                },
+                "Autoridad": {
+                    definition: "Derecho a imponer obediencia o tomar decisiones",
+                    dilemma: "Como representante estudiantil, debes decidir entre lo popular y lo correcto.",
+                    color: "hsl(144, 80%, 60%)" /* Verde */
+                }
+            },
+            "Seguridad": {
+                "Estabilidad": {
+                    definition: "Seguridad, armonía y estabilidad de la sociedad",
+                    dilemma: "Debes elegir entre una carrera estable pero aburrida o una arriesgada pero apasionante.",
+                    color: "hsl(180, 80%, 60%)" /* Cyan */
+                },
+                "Tradición": {
+                    definition: "Respeto, compromiso y aceptación de costumbres culturales",
+                    dilemma: "Una tradición familiar entra en conflicto con tus creencias personales.",
+                    color: "hsl(180, 80%, 60%)" /* Cyan */
+                }
+            },
+            "Conformidad": {
+                "Obediencia": {
+                    definition: "Autocontrol en la interacción para evitar ofender",
+                    dilemma: "Un amigo hace algo incorrecto y debes decidir si reportarlo.",
+                    color: "hsl(216, 80%, 60%)" /* Azul */
+                },
+                "Respeto Normas": {
+                    definition: "Respeto por las reglas y convenciones sociales",
+                    dilemma: "Ves a muchos compañeros violando una regla que consideras importante.",
+                    color: "hsl(216, 80%, 60%)" /* Azul */
+                }
+            },
+            "Tradición": {
+                "Respeto Cultural": {
+                    definition: "Respeto, compromiso y aceptación de ideas culturales",
+                    dilemma: "Una práctica cultural de tu familia entra en conflicto con tus valores personales.",
+                    color: "hsl(252, 80%, 60%)" /* Violeta */
+                },
+                "Devoción": {
+                    definition: "Aceptación de los aspectos ceremoniales de la religión",
+                    dilemma: "Tus creencias religiosas difieren de las de tus amigos cercanos.",
+                    color: "hsl(252, 80%, 60%)" /* Violeta */
+                }
+            },
+            "Benevolencia": {
+                "Ayuda": {
+                    definition: "Preservación y mejora del bienestar de personas cercanas",
+                    dilemma: "Un amigo necesita ayuda pero apoyarlo afectaría tu propio rendimiento académico.",
+                    color: "hsl(288, 80%, 60%)" /* Magenta */
+                },
+                "Solidaridad": {
+                    definition: "Preocupación por el bienestar de otros en la vida diaria",
+                    dilemma: "Ves a un compañero siendo excluido por ser diferente.",
+                    color: "hsl(288, 80%, 60%)" /* Magenta */
+                }
+            },
+            "Universalismo": {
+                "Justicia Social": {
+                    definition: "Comprensión, aprecio, tolerancia y protección del bienestar de todos",
+                    dilemma: "Descubres una injusticia que no te afecta directamente pero que perjudica a otros.",
+                    color: "hsl(324, 80%, 60%)" /* Rosa */
+                },
+                "Ecología": {
+                    definition: "Protección del medio ambiente y la naturaleza",
+                    dilemma: "Debes elegir entre comodidad personal y acciones que beneficien al medio ambiente.",
+                    color: "hsl(324, 80%, 60%)" /* Rosa */
+                }
+            }
+        };
+
+        // Preguntas reflexivas mejoradas
+        const reflectionQuestions = {
+            "basic": [
+                "¿Qué significa este valor para ti y cómo se manifiesta en tu vida diaria?",
+                "Describe una situación reciente donde hayas aplicado o visto este valor en acción",
+                "¿Cómo podrías practicar más este valor en tu entorno escolar?"
+            ],
+            "intermediate": [
+                "Analiza un momento en que este valor entró en conflicto con otro valor importante para ti",
+                "¿Cómo influye este valor en tu visión de futuro y tus metas personales?",
+                "¿De qué manera este valor afecta tus relaciones con compañeros y familia?"
+            ],
+            "advanced": [
+                "Critica la importancia de este valor en el contexto social actual",
+                "Propón una estrategia para promover este valor en tu comunidad educativa",
+                "Reflexiona sobre cómo equilibrar este valor cuando entra en conflicto con otros valores"
+            ]
+        };
+
+        // Variables de estado mejoradas
+        let availableValues = [];
+        let selectedValues = [];
+        let spinsRemaining = 0;
+        let currentValue = null;
+        let isSpinning = false;
+        const canvas = document.getElementById("wheelCanvas");
+        const ctx = canvas.getContext("2d");
+        let sectorAngle = 0;
+
+        // Elementos UI mejorados
+        const uiElements = {
+            spinBtn: document.getElementById("spinBtn"),
+            resetBtn: document.getElementById("resetBtn"),
+            resultSection: document.getElementById("resultSection"),
+            valueName: document.getElementById("valueName"),
+            valueDefinition: document.getElementById("valueDefinition"),
+            valueDilemma: document.getElementById("valueDilemma"),
+            studentName: document.getElementById("studentName"),
+            question1Label: document.getElementById("question1Label"),
+            question2Label: document.getElementById("question2Label"),
+            question3Label: document.getElementById("question3Label"),
+            answer1: document.getElementById("answer1"),
+            answer2: document.getElementById("answer2"),
+            answer3: document.getElementById("answer3"),
+            artExpression: document.getElementById("artExpression"),
+            artPreview: document.getElementById("artPreview"),
+            artUpload: document.getElementById("artUpload"),
+            legendItems: document.getElementById("legendItems")
+        };
+
+        // Inicialización mejorada
+        function initApp() {
+            prepareValues();
+            drawWheel();
+            createLegend();
+            setupEventListeners();
+        }
+
+        // Preparar valores mejorado
+        function prepareValues() {
+            availableValues = [];
+            for (const dimension in schwartzValues) {
+                for (const value in schwartzValues[dimension]) {
+                    availableValues.push({
+                        name: value,
+                        dimension: dimension,
+                        definition: schwartzValues[dimension][value].definition,
+                        dilemma: schwartzValues[dimension][value].dilemma,
+                        color: schwartzValues[dimension][value].color
+                    });
+                }
+            }
+            selectedValues = [];
+            spinsRemaining = Math.floor(Math.random() * 5) + 3; // 3-7 giros
+            sectorAngle = (2 * Math.PI) / availableValues.length;
+        }
+
+        // Crear leyenda de valores
+        function createLegend() {
+            let legendHTML = "";
+            const dimensions = Object.keys(schwartzValues);
+            
+            dimensions.forEach(dimension => {
+                const values = Object.keys(schwartzValues[dimension]);
+                const firstValue = values[0];
+                const color = schwartzValues[dimension][firstValue].color;
+                
+                legendHTML += `
+                    <div class="legend-item">
+                        <div class="legend-value">
+                            <span class="legend-color" style="background-color: ${color};"></span>
+                            ${dimension}
+                        </div>
+                        <div class="legend-definition">
+                            ${schwartzValues[dimension][firstValue].definition}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            uiElements.legendItems.innerHTML = legendHTML;
+        }
+
+        // Dibujar rueda mejorado
+        function drawWheel() {
+            const center = canvas.width / 2;
+            const radius = canvas.width / 2;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Dibujar sectores con colores por dimensión
+            availableValues.forEach((value, index) => {
+                const startAngle = index * sectorAngle;
+                const endAngle = (index + 1) * sectorAngle;
+                
+                ctx.fillStyle = value.color;
+                ctx.beginPath();
+                ctx.moveTo(center, center);
+                ctx.arc(center, center, radius, startAngle, endAngle);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Texto del valor
+                ctx.save();
+                ctx.translate(center, center);
+                ctx.rotate(startAngle + sectorAngle / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = "#000";
+                ctx.font = "bold 14px Arial";
+                ctx.fillText(value.name, radius - 15, 5);
+                ctx.restore();
+            });
+        }
+
+        // Girar rueda mejorado
+        function spinWheel() {
+            if (isSpinning) return;
+            if (spinsRemaining <= 0) {
+                alert("Ya has realizado el número máximo de giros. Reinicia la rueda para continuar.");
+                return;
+            }
+            if (availableValues.length === 0) {
+                alert("No hay más valores disponibles. Reinicia la rueda.");
+                return;
+            }
+
+            isSpinning = true;
+            uiElements.spinBtn.disabled = true;
+
+            const randomIndex = Math.floor(Math.random() * availableValues.length);
+            currentValue = availableValues[randomIndex];
+            
+            availableValues.splice(randomIndex, 1);
+            selectedValues.push(currentValue);
+            spinsRemaining--;
+            
+            const originalIndex = getAllValues().findIndex(v => v.name === currentValue.name);
+            const totalValues = getAllValues().length;
+            const anglePerValue = (2 * Math.PI) / totalValues;
+            const finalAngle = (3 * Math.PI / 2) - (originalIndex * anglePerValue) - (anglePerValue / 2);
+            
+            // Resetear la transición para múltiples giros
+            canvas.style.transition = "none";
+            canvas.style.transform = "rotate(0)";
+            void canvas.offsetWidth; // Forzar reflow
+            canvas.style.transition = "transform 4s cubic-bezier(0.17, 0.67, 0.21, 0.99)";
+            canvas.style.transform = `rotate(${finalAngle + 10 * Math.PI}rad)`;
+            
+            setTimeout(() => {
+                isSpinning = false;
+                showResult(currentValue);
+                updateUI();
+            }, 4000);
+        }
+
+        // Mostrar todos los valores
+        function getAllValues() {
+            const all = [];
+            for (const dimension in schwartzValues) {
+                for (const value in schwartzValues[dimension]) {
+                    all.push({
+                        name: value,
+                        dimension: dimension,
+                        color: schwartzValues[dimension][value].color
+                    });
+                }
+            }
+            return all;
+        }
+
+        // Mostrar resultado mejorado
+        function showResult(value) {
+            uiElements.resultSection.style.display = "block";
+            uiElements.valueName.textContent = value.name;
+            uiElements.valueDefinition.textContent = value.definition;
+            uiElements.valueDilemma.textContent = value.dilemma;
+            
+            // Usar preguntas intermedias por defecto
+            const questions = reflectionQuestions.intermediate;
+            uiElements.question1Label.textContent = "1. " + questions[0];
+            uiElements.question2Label.textContent = "2. " + questions[1];
+            uiElements.question3Label.textContent = "3. " + questions[2];
+            
+            // Limpiar campos anteriores
+            uiElements.studentName.value = "";
+            uiElements.answer1.value = "";
+            uiElements.answer2.value = "";
+            uiElements.answer3.value = "";
+            uiElements.artExpression.value = "";
+            uiElements.artPreview.src = "";
+            uiElements.artPreview.style.display = "none";
+            
+            // Scroll suave al resultado
+            setTimeout(() => {
+                uiElements.resultSection.scrollIntoView({ behavior: "smooth" });
+            }, 100);
+        }
+
+        // Reiniciar rueda mejorado
+        function resetWheel() {
+            prepareValues();
+            canvas.style.transition = "none";
+            canvas.style.transform = "rotate(0)";
+            uiElements.resultSection.style.display = "none";
+            currentValue = null;
+            updateUI();
+            drawWheel();
+        }
+
+        // Configurar event listeners mejorado
+        function setupEventListeners() {
+            uiElements.spinBtn.addEventListener("click", spinWheel);
+            uiElements.resetBtn.addEventListener("click", resetWheel);
+            
+            uiElements.artUpload.addEventListener("change", function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        uiElements.artPreview.src = event.target.result;
+                        uiElements.artPreview.style.display = "block";
+                    };
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+        }
+
+        // Actualizar UI mejorado
+        function updateUI() {
+            uiElements.spinBtn.disabled = isSpinning || spinsRemaining <= 0;
+            uiElements.spinBtn.textContent = spinsRemaining > 0 ? 
+                `Girar (${spinsRemaining} restantes)` : "No hay más giros";
+            uiElements.resetBtn.disabled = false;
+        }
+
+        // Función de impresión mejorada
+        function printReflection() {
+            // Crear contenido para imprimir
+            const printContent = `
+                <style>
+                    body { font-family: Arial; font-size: 14pt; padding: 20px; }
+                    h1 { color: #000; border-bottom: 2px solid #000; padding-bottom: 10px; }
+                    .value { margin-bottom: 20px; }
+                    .dilemma { background: #f5f5f5; padding: 10px; margin: 10px 0; border-left: 4px solid #000; }
+                    .question { font-weight: bold; margin-top: 15px; }
+                    .answer { margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; }
+                    .art { margin-top: 30px; }
+                    .art-image { max-width: 300px; max-height: 300px; }
+                </style>
+                <h1>Reflexión sobre Valores - ${document.getElementById("studentName").value || "Anónimo"}</h1>
+                <div class="value">
+                    <h2>Valor: ${uiElements.valueName.textContent}</h2>
+                    <p><em>${uiElements.valueDefinition.textContent}</em></p>
+                    <div class="dilemma">
+                        <strong>Dilema:</strong> ${uiElements.valueDilemma.textContent}
+                    </div>
+                </div>
+                <div class="reflection">
+                    <div class="question">1. ${uiElements.question1Label.textContent.replace("1. ", "")}</div>
+                    <div class="answer">${uiElements.answer1.value || "Sin respuesta"}</div>
+                    
+                    <div class="question">2. ${uiElements.question2Label.textContent.replace("2. ", "")}</div>
+                    <div class="answer">${uiElements.answer2.value || "Sin respuesta"}</div>
+                    
+                    <div class="question">3. ${uiElements.question3Label.textContent.replace("3. ", "")}</div>
+                    <div class="answer">${uiElements.answer3.value || "Sin respuesta"}</div>
+                </div>
+                <div class="art">
+                    <h3>Expresión Artística</h3>
+                    <p>${uiElements.artExpression.value || "Sin descripción"}</p>
+                    ${uiElements.artPreview.src ? `<img src="${uiElements.artPreview.src}" class="art-image">` : ""}
+                </div>
+                <p style="margin-top: 30px; font-style: italic; text-align: right;">
+                    Fecha: ${new Date().toLocaleDateString()}
+                </p>
+            `;
+            
+            // Ventana de impresión
+            const printWindow = window.open('', '', 'width=800,height=600');
+            printWindow.document.open();
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            
+            // Esperar a que cargue la imagen si existe
+            if (uiElements.artPreview.src) {
+                printWindow.onload = function() {
+                    setTimeout(() => {
+                        printWindow.print();
+                    }, 500);
+                };
+            } else {
+                setTimeout(() => {
+                    printWindow.print();
+                }, 100);
+            }
+        }
+
+        // Iniciar la aplicación cuando el DOM esté listo
+        document.addEventListener("DOMContentLoaded", initApp);
+    </script>
+  
+  <!-- Asegúrate de incluir esta línea en tu <head> -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  footer {
+    background-color: #000;
+    color: #ccc;
+    padding: 30px 20px;
+    font-size: 0.8rem;
+    text-align: center;
+    line-height: 1.5;
+    border-top: 2px solid #ff6f00;
+    margin-top: 40px;
+    font-family: 'Playfair Display', serif;
+  }
+
+  footer strong {
+    color: #fff;
+    font-weight: 700;
+  }
+
+  footer em {
+    color: #ffa726;
+    font-style: normal;
+    font-weight: 400;
+  }
+
+  footer a {
+    color: #F6BE00;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  footer a:hover {
+    text-decoration: underline;
+  }
+
+  .enlaces-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+  }
+
+  .enlaces-footer a {
+    white-space: nowrap;
+  }
+
+  .contador-visitas {
+    margin-top: 25px;
+  }
+
+  .contador-visitas img {
+    max-width: 100px;
+    opacity: 0.9;
+  }
+
+  .doi-badge img,
+  .cc-logo img {
+    vertical-align: middle;
+    height: 20px;
+    margin: 0 5px;
+  }
+</style>
+
+<footer>
+  © 2024 — Herramientas del Proyecto de Investigación: <strong>*Emociones en el Aula*</strong><br>
+  Propuesta educativa y cultural creada por <strong>Yobana Orozco Benavides</strong>, Escritora | Docente | Gestora de proyectos artísticos y pedagógicos<br><br>
+  
+  Licencia: 
+  <em>Creative Commons Atribución-NoComercial 4.0 Internacional (CC BY-NC 4.0)</em>
+  <span class="cc-logo">
+    <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">
+      <img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="CC Logo">
+    </a>
+  </span>
+  <br>
+  Uso libre con fines educativos — <strong>prohibido uso comercial</strong><br><br>
+
+  Más información de la autora: 
+  <a href="https://yobanaorozcoartista.bio.link/" target="_blank" rel="noopener">yobanaorozcoartista.bio.link</a>
+
+  <div class="enlaces-footer">
+    <a href="https://orcid.org/0009-0002-9253-6429" target="_blank">ORCID</a>
+    <a href="https://www.webofscience.com/wos/?mode=Nextgen&path=%2Fwos%2Fauthor%2Frecord%2FLLM-9647-2024&IsProductCode=Yes&Init=Yes&DestApp=UA&Func=Frame&action=transfer&SrcApp=CR&SID=USW2EC0AFFb0eJYIUmqxKCgZWIVbn" target="_blank">Web of Science</a>
+    <a href="https://account.ncbi.nlm.nih.gov/?back_url=https%3A%2F%2Fwww.ncbi.nlm.nih.gov%2Fmyncbi%2F" target="_blank">NCBI</a>
+    <a href="https://es.slideshare.net/YOBANAOROZCO" target="_blank">SlideShare</a>
+    <a href="https://hq.ssrn.com/login/authentication.cfm?rectype=edit&perinf=y&partid=7786766" target="_blank">SSRN</a>
+    <a href="https://www.researchgate.net/" target="_blank">ResearchGate</a>
+    <a href="https://siise.bibliotecanacional.gov.co/siise/Login?ReturnUrl=%2fsiise%2fSeleccionAdquisiciones%2fSolicitudISSN%2fIndex" target="_blank">SIISE</a>
+    <a href="https://scientificrc.org/index.php/src/login?source=%2Findex.php%2Fsrc%2Fsubmission%2Fwizard" target="_blank">Scientific RC</a>
+    <a href="https://www.openaire.eu/annual-reports" target="_blank">OpenAIRE</a>
+    <a href="https://zenodo.org/" target="_blank">Zenodo</a>
+    <a href="https://sso.anii.org.uy/oxauth/login.htm" target="_blank">ANII</a>
+    <a href="https://rizoma.conahcyt.mx/acerca-de-mi/mi-perfil" target="_blank">Rizoma CONAHCYT</a>
+    <a href="https://papersubmission.scirp.org/paper/showAddPaper" target="_blank">SCIRP Submission</a>
+    <a href="https://utolima.academia.edu/YOBANAOROZCOBENAVIDES" target="_blank">Academia.edu</a>
+    <a href="https://www.studocu.com/co/user/yobana-orozco-benavides/15382735?origin=user-menu" target="_blank">Studocu</a>
+    <a href="https://www.calameo.com/accounts/7997056" target="_blank">Calameo</a>
+    <a href="https://www.amazon.com.mx/stores/YOBANA-OROZCO-BENAVIDES/author/B0CZG5RS1T?ref=ap_rdr&isDramIntegrated=true&shoppingPortalEnabled=true" target="_blank">Amazon</a>
+  </div>
+
+  
+  </div>
+</footer>
+
+  
+</body>
+</html>
